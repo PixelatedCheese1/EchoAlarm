@@ -160,15 +160,15 @@ fun ClockSettingsSheet(settings: AppSettings, onDismiss: () -> Unit) {
             Text("Clock face", style = MaterialTheme.typography.titleMedium)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(vertical = 8.dp)) {
                 items(ClockFaces.all) { f ->
-                    FilterChip(selected = f.id == settings.faceId, onClick = { settings.setFace(f.id) },
+                    FilterChip(selected = f.id == settings.faceId, onClick = { settings.updateFace(f.id) },
                         label = { Text(f.name) })
                 }
             }
-            SettingRow("24-hour time", settings.use24h, settings::setUse24h)
-            SettingRow("Show seconds", settings.showSeconds, settings::setShowSeconds)
-            SettingRow("Show date", settings.showDate, settings::setShowDate)
-            SettingRow("Keep screen on", settings.keepAwake, settings::setKeepAwake)
-            SettingRow("Dark theme", settings.dark, settings::setDark)
+            SettingRow("24-hour time", settings.use24h, settings::updateUse24h)
+            SettingRow("Show seconds", settings.showSeconds, settings::updateShowSeconds)
+            SettingRow("Show date", settings.showDate, settings::updateShowDate)
+            SettingRow("Keep screen on", settings.keepAwake, settings::updateKeepAwake)
+            SettingRow("Dark theme", settings.dark, settings::updateDark)
         }
     }
 }

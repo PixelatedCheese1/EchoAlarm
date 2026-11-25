@@ -16,11 +16,11 @@ class AppSettings(ctx: Context) {
     var dark by mutableStateOf(sp.getBoolean("dark", true)); private set
     var mediaPkg by mutableStateOf(sp.getString("media_pkg", "")!!); private set
 
-    fun setFace(v: String) { faceId = v; sp.edit().putString("face", v).apply() }
-    fun setUse24h(v: Boolean) { use24h = v; sp.edit().putBoolean("h24", v).apply() }
-    fun setShowSeconds(v: Boolean) { showSeconds = v; sp.edit().putBoolean("secs", v).apply() }
-    fun setShowDate(v: Boolean) { showDate = v; sp.edit().putBoolean("date", v).apply() }
-    fun setKeepAwake(v: Boolean) { keepAwake = v; sp.edit().putBoolean("awake", v).apply() }
-    fun setDark(v: Boolean) { dark = v; sp.edit().putBoolean("dark", v).apply() }
-    fun setMediaPkg(v: String) { mediaPkg = v; sp.edit().putString("media_pkg", v).apply() }
+    fun updateFace(v: String) { faceId = v; sp.edit().putString("face", v).apply() }
+    fun updateUse24h(v: Boolean) { use24h = v; sp.edit().putBoolean("h24", v).apply() }
+    fun updateShowSeconds(v: Boolean) { showSeconds = v; sp.edit().putBoolean("secs", v).apply() }
+    fun updateShowDate(v: Boolean) { showDate = v; sp.edit().putBoolean("date", v).apply() }
+    fun updateKeepAwake(v: Boolean) { keepAwake = v; sp.edit().putBoolean("awake", v).apply() }
+    fun updateDark(v: Boolean) { dark = v; sp.edit().putBoolean("dark", v).apply() }
+    fun updateMediaPkg(v: String) { mediaPkg = v; sp.edit().putString("media_pkg", v).apply() }
 }
