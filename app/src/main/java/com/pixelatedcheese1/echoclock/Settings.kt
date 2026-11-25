@@ -1,0 +1,26 @@
+package com.pixelatedcheese1.echoclock
+
+import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
+class AppSettings(ctx: Context) {
+    private val sp = ctx.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+    var faceId by mutableStateOf(sp.getString("face", "big")!!); private set
+    var use24h by mutableStateOf(sp.getBoolean("h24", false)); private set
+    var showSeconds by mutableStateOf(sp.getBoolean("secs", false)); private set
+    var showDate by mutableStateOf(sp.getBoolean("date", true)); private set
+    var keepAwake by mutableStateOf(sp.getBoolean("awake", true)); private set
+    var dark by mutableStateOf(sp.getBoolean("dark", true)); private set
+    var mediaPkg by mutableStateOf(sp.getString("media_pkg", "")!!); private set
+
+    fun setFace(v: String) { faceId = v; sp.edit().putString("face", v).apply() }
+    fun setUse24h(v: Boolean) { use24h = v; sp.edit().putBoolean("h24", v).apply() }
+    fun setShowSeconds(v: Boolean) { showSeconds = v; sp.edit().putBoolean("secs", v).apply() }
+    fun setShowDate(v: Boolean) { showDate = v; sp.edit().putBoolean("date", v).apply() }
+    fun setKeepAwake(v: Boolean) { keepAwake = v; sp.edit().putBoolean("awake", v).apply() }
+    fun setDark(v: Boolean) { dark = v; sp.edit().putBoolean("dark", v).apply() }
+    fun setMediaPkg(v: String) { mediaPkg = v; sp.edit().putString("media_pkg", v).apply() }
+}
