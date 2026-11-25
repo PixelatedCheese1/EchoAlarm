@@ -158,6 +158,7 @@ fun MediaScreen(settings: AppSettings) {
     }
 
     if (picking) AppPicker(ctx, onPick = { settings.updateMediaPkg(it); picking = false }, onDismiss = { picking = false })
+}
 
 @Composable
 private fun AppPicker(ctx: Context, onPick: (String) -> Unit, onDismiss: () -> Unit) {
