@@ -1,6 +1,15 @@
 package com.pixelatedcheese1.echoclock
 
 import android.content.Context
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -106,13 +115,17 @@ private fun AlarmEditor(
     ctx: Context, alarm: Alarm, use24h: Boolean, isNew: Boolean,
     onDismiss: () -> Unit, onDelete: () -> Unit, onSave: (Alarm) -> Unit
 ) {
-    val time = rememberTimePickerState(alarm.hour, alarm.minute, use24h)
+    var hour by remember { mutableIntStateOf(alarm.hour) }
+    var minute by remember { mutableIntStateOf(alarm.minute) }
+    var showPicker by remember { mutableStateOf(false) }
     var days by remember { mutableIntStateOf(alarm.days) }
     var sound by remember { mutableStateOf(alarm.sound) }
     var label by remember { mutableStateOf(alarm.label) }
     var menu by remember { mutableStateOf(false) }
     var previewing by remember { mutableStateOf(false) }
     val sounds = remember { Sounds.names() }
+    val focus = LocalFocusManager.current
+    val kb = LocalSoftwareKeyboardController.current
     DisposableEffect(Unit) { onDispose { SoundPreview.stop() } }
 
     AlertDialog(
@@ -121,8 +134,27 @@ private fun AlarmEditor(
         modifier = Modifier.widthIn(max = 700.dp).padding(16.dp),
         title = { Text(if (isNew) "New alarm" else "Edit alarm") },
         text = {
-            Row(Modifier.verticalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                TimeInput(time)
+            Row(
+                Modifier
+                    .pointerInput(Unit) { detectTapGestures { focus.clearFocus(); kb?.hide() } }
+                    .verticalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Surface(
+                        onClick = { focus.clearFocus(); kb?.hide(); showPicker = true },
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Row(Modifier.padding(horizontal = 20.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Schedule, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Spacer(Modifier.width(10.dp))
+                            Text(timeText(hour, minute, use24h), fontSize = 36.sp, fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                    }
+                    Text("Tap to set time", style = MaterialTheme.typography.bodySmall)
+                }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         DAY_LETTERS.forEachIndexed { i, l ->
@@ -138,7 +170,11 @@ private fun AlarmEditor(
                         }
                     }
                     Text(daysSummary(days), style = MaterialTheme.typography.bodySmall)
-                    OutlinedTextField(label, { label = it }, label = { Text("Label") }, singleLine = true)
+                    OutlinedTextField(
+                        label, { label = it }, label = { Text("Label") }, singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focus.clearFocus(); kb?.hide() })
+                    )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.weight(1f)) {
                             OutlinedButton(onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) {
@@ -161,7 +197,7 @@ private fun AlarmEditor(
         },
         confirmButton = {
             TextButton(onClick = {
-                onSave(alarm.copy(hour = time.hour, minute = time.minute, days = days, sound = sound, label = label.trim(), enabled = true))
+                onSave(alarm.copy(hour = hour, minute = minute, days = days, sound = sound, label = label.trim(), enabled = true))
             }) { Text("Save") }
         },
         dismissButton = {
@@ -170,5 +206,28 @@ private fun AlarmEditor(
                 TextButton(onClick = onDismiss) { Text("Cancel") }
             }
         }
+    )
+
+    if (showPicker) ClockTimeDialog(hour, minute, use24h, { showPicker = false }) { h, m ->
+        hour = h; minute = m; showPicker = false
+    }
+}
+
+/** Material 3 analog-dial time picker popup (horizontal layout so it fits short screens). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ClockTimeDialog(h: Int, m: Int, use24h: Boolean, onDismiss: () -> Unit, onConfirm: (Int, Int) -> Unit) {
+    val st = rememberTimePickerState(h, m, use24h)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier.padding(16.dp),
+        text = {
+            Box(Modifier.verticalScroll(rememberScrollState())) {
+                TimePicker(st, layoutType = TimePickerLayoutType.Horizontal)
+            }
+        },
+        confirmButton = { TextButton(onClick = { onConfirm(st.hour, st.minute) }) { Text("OK") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }

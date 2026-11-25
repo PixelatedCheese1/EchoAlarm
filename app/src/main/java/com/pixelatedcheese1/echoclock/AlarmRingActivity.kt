@@ -30,7 +30,7 @@ class AlarmRingActivity : ComponentActivity() {
         }
 
         setContent {
-            EchoClockTheme(settings.dark) {
+            EchoClockTheme(settings.dark, settings.night) {
                 var now by remember { mutableStateOf(LocalTime.now()) }
                 LaunchedEffect(Unit) {
                     delay(1500)
